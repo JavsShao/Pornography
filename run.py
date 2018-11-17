@@ -165,3 +165,50 @@ class Nude(object):
         # 分析皮肤区域，得到判定结果
         self._analyse_regions()
         return self
+
+    def _add_merge(self, _from, _to):
+        # 两个区域号赋值给类属性
+        self.last_from = _from
+        self.last_to = _to
+
+        # 记录 self.merge_regions 的某个索引值，初始化为 -1
+        from_index = -1
+        # 记录 self.merge_regions 的某个索引值，初始化为 -1
+        to_index = -1
+
+
+        # 遍历每个 self.merge_regions 的元素
+        for index, region in enumerate(self.merge_regions):
+            # 遍历元素中的每个区域号
+            for r_index in region:
+                if r_index == _from:
+                    from_index = index
+                if r_index == _to:
+                    to_index = index
+
+        # 若两个区域号都存在于 self.merge_regions 中
+        if from_index != -1 and to_index != -1:
+            # 如果这两个区域号分别存在于两个列表中
+            # 那么合并这两个列表
+            if from_index != to_index:
+                self.merge_regions[from_index].extend(self.merge_regions[to_index])
+                del(self.merge_regions[to_index])
+            return
+
+        # 若两个区域号都不存在于 self.merge_regions 中
+        if from_index == -1 and to_index == -1:
+            # 创建新的区域号列表
+            self.merge_regions.append([_from, _to])
+            return
+        # 若两个区域号中有一个存在于 self.merge_regions 中
+        if from_index != -1 and to_index == -1:
+            # 将不存在于 self.merge_regions 中的那个区域号
+            # 添加到另一个区域号所在的列表
+            self.merge_regions[from_index].append(_to)
+            return
+        # 若两个待合并的区域号中有一个存在于 self.merge_regions 中
+        if from_index == -1 and to_index != -1:
+            # 将不存在于 self.merge_regions 中的那个区域号
+            # 添加到另一个区域号所在的列表
+            self.merge_regions[to_index].append(_from)
+            return
