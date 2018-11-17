@@ -278,3 +278,34 @@ class Nude(object):
             self.message = "Nude!!"
             self.result = True
             return self.result
+
+        # 基于像素的肤色检测技术
+        def _classify_skin(self, r, g, b):
+            # 根据RGB值判定
+            rgb_classifier = r > 95 and \
+                             g > 40 and g < 100 and \
+                             b > 20 and \
+                             max([r, g, b]) - min([r, g, b]) > 15 and \
+                             abs(r - g) > 15 and \
+                             r > g and \
+                             r > b
+            # 根据处理后的 RGB 值判定
+            nr, ng, nb = self._to_normalized(r, g, b)
+            norm_rgb_classifier = nr / ng > 1.185 and \
+                                  float(r * b) / ((r + g + b) ** 2) > 0.107 and \
+                                  float(r * g) / ((r + g + b) ** 2) > 0.112
+
+            # HSV 颜色模式下的判定
+            h, s, v = self._to_hsv(r, g, b)
+            hsv_classifier = h > 0 and \
+                             h < 35 and \
+                             s > 0.23 and \
+                             s < 0.68
+
+            # YCbCr 颜色模式下的判定
+            y, cb, cr = self._to_ycbcr(r, g, b)
+            ycbcr_classifier = 97.5 <= cb <= 142.5 and 134 <= cr <= 176
+
+            # 效果不是很好，还需改公式
+            # return rgb_classifier or norm_rgb_classifier or hsv_classifier or ycbcr_classifier
+            return ycbcr_classifier
