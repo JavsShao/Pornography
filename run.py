@@ -237,3 +237,44 @@ class Nude(object):
 
             # 清理 new_detected_regions
             self._clear_regions(new_detected_regions)
+
+        # 分析区域
+        def _analyse_regions(self):
+            # 如果皮肤区域小于 3 个，不是色情
+            if len(self.skin_regions) < 3:
+                self.message = "Less than 3 skin regions ({_skin_regions_size})".format(
+                    _skin_regions_size=len(self.skin_regions))
+                self.result = False
+                return self.result
+
+            # 为皮肤区域排序
+            self.skin_regions = sorted(self.skin_regions, key=lambda s: len(s),
+                                       reverse=True)
+
+            # 计算皮肤总像素数
+            total_skin = float(sum([len(skin_region) for skin_region in self.skin_regions]))
+
+            # 如果皮肤区域与整个图像的比值小于 15%，那么不是色情图片
+            if total_skin / self.total_pixels * 100 < 15:
+                self.message = "Total skin percentage lower than 15 ({:.2f})".format(
+                    total_skin / self.total_pixels * 100)
+                self.result = False
+                return self.result
+
+            # 如果最大皮肤区域小于总皮肤面积的 45%，不是色情图片
+            if len(self.skin_regions[0]) / total_skin * 100 < 45:
+                self.message = "The biggest region contains less than 45 ({:.2f})".format(
+                    len(self.skin_regions[0]) / total_skin * 100)
+                self.result = False
+                return self.result
+
+            # 皮肤区域数量超过 60个，不是色情图片
+            if len(self.skin_regions) > 60:
+                self.message = "More than 60 skin regions ({})".format(len(self.skin_regions))
+                self.result = False
+                return self.result
+
+            # 其它情况为色情图片
+            self.message = "Nude!!"
+            self.result = True
+            return self.result
