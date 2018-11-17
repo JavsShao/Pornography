@@ -164,3 +164,4 @@ class Nude(object):
         self._merge(self.detected_regions, self.merge_regions)
         # 分析皮肤区域，得到判定结果
         self._analyse_regions()
+        return self
