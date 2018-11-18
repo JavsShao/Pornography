@@ -248,6 +248,7 @@ class Nude(object):
             if len(region) > 30:
                 self.skin_regions.append(region)
 
+
     # 分析区域
     def _analyse_regions(self):
         # 如果皮肤区域小于 3 个，不是色情
